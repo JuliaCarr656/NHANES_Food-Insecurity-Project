@@ -1,4 +1,7 @@
 # NHANES_Food-Insecurity-Project
+Replicated Hilary K Seligman, Barbara A Laraia, and Margot B Kushel's "Food Insecurity Is Associated with Chronic Disease among Low-Income NHANES Participants" 
+study. This replication uses NHANES datasets from **2011, 2013, and 2015** instead of the original 1999, 2001, and 2003 waves. 
+
 Analyzed NHANES data to study links between food insecurity and chronic illness. Cleaned and manipulated datasets, created tables and visualizations, and calculated risk ratios using R (tidyverse, dplyr, ggplot2, haven, readr). 
 
 ## Purpose
