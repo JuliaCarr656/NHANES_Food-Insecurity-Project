@@ -4,7 +4,7 @@
 # Purpose: Load required packages and prepare environment for analysis
 # ===============================================================
 
-#### 1. Install and Load Packages
+# 1. Install and Load Packages
 install.packages("devtools")
 library(devtools)
 install.packages("dplyr")
@@ -24,7 +24,7 @@ install.packages("tidyr")
 library(tidyr)
 
 # ===============================================================
-#### 2. FUNCTION: import ####
+#2. FUNCTION: import 
 # Purpose: Download and combine NHANES datasets for a given year
 # Inputs:
 #   x = year suffix (for example: 11 for 2011)
@@ -68,7 +68,7 @@ import<-function(x,y){
 }
 
 # ===============================================================
-#### 4. FUNCTION: NHANESrename ####
+# 4. FUNCTION: NHANESrename 
 # Purpose: Change variable names across all NHANES datasets
 # Input:
 #   x = year suffix
@@ -213,7 +213,7 @@ alldata <- alldata %>%
 
 
 # ===============================================================
-#### FOOD INSECURITY VARIABLES ####
+# FOOD INSECURITY VARIABLES
 # Create a score for food insecurity (FSQcount) and a binary indicator (Has_FISQ)
 # FSQcount: counts affirmative responses to 10 food security questions
 # Has_FISQ: defines food insecurity; low sensitivity = 3+ affirmative responses
@@ -241,7 +241,7 @@ rowwise() %>%
 
 
 # ===============================================================
-#### 9. CHRONIC ILLNESS VARIABLES ####
+#CHRONIC ILLNESS VARIABLES 
 # Hypertension (HBP), Hyperlipidemia (Cholesterol), Diabetes
 # Each condition includes self-reported and clinical measures
 
