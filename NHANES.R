@@ -398,7 +398,7 @@ library(broom)
 install.packages("gt")
 library(gt)
 install.packages("webshot2")
-libary(webshot2)
+library(webshot2)
 
 tbl1<-alldata %>%
   select(c(Gender,Age,Race,Education,Income,Insurance_Type,
