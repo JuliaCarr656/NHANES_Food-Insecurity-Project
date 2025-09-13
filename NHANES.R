@@ -531,15 +531,14 @@ table2 %>%
 
 #Cleaning up_____________________________________________________________
 
-# Things I want to keep
+# Delete everything but the following dataframes from the Global Environment
 keep <- c("alldata", "final_table", "results", "results_long", "results_wide", "tbl1",
           "food_insecure", "calc_stats","import", "NHANESrename") 
 
-# Delete everything but what I want
 rm(list = setdiff(ls(), keep))
 
 #_______________________________________________________________________
 
-#And that's all folks! Thanks for taking a peek at my code
+#And that's all folks! Thanks for taking a peek at my code.
 #-Julia Carreon-Sanchez
 
