@@ -24,7 +24,7 @@ install.packages("tidyr")
 library(tidyr)
 
 # ===============================================================
-#2. FUNCTION: import 
+#FUNCTION: import 
 # Purpose: Download and combine NHANES datasets for a given year
 # Inputs:
 #   x = year suffix (for example: 11 for 2011)
@@ -68,7 +68,7 @@ import<-function(x,y){
 }
 
 # ===============================================================
-# 4. FUNCTION: NHANESrename 
+# FUNCTION: NHANESrename 
 # Purpose: Change variable names across all NHANES datasets
 # Input:
 #   x = year suffix
