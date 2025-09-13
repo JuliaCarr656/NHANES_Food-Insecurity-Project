@@ -1,3 +1,10 @@
+# ===============================================================
+# NHANES Food Insecurity Analysis - Setup
+# Author: Julia Carreon-Sanchez
+# Purpose: Load required packages and prepare environment for analysis
+# ===============================================================
+
+#### 1. Install and Load Packages
 install.packages("devtools")
 library(devtools)
 install.packages("dplyr")
@@ -16,11 +23,15 @@ library(tableone)
 install.packages("tidyr")
 library(tidyr)
 
-# FUNCTION: making a function that brings in NHANES data. 
+# ===============================================================
+#### 2. FUNCTION: import ####
+# Purpose: Download and combine NHANES datasets for a given year
+# Inputs:
+#   x = year suffix (for example: 11 for 2011)
+#   y = letter code corresponding to the NHANES dataset for that year
+# This function imports multiple questionnaires and lab files, then merges them into one dataset.
 
 import<-function(x,y){
-#x is years after 2000
-#y is letter that corresponds to that year. 
     assign(paste0('demo20',x),nhanes(paste0('DEMO_',y)), envir=.GlobalEnv)
     assign(paste0('BloodPQ',x),  nhanes(paste0('BPQ_',y)), envir=.GlobalEnv)
     assign(paste0('FoodSQ',x), nhanes(paste0('FSQ_',y)), envir=.GlobalEnv)
@@ -35,7 +46,9 @@ import<-function(x,y){
     assign(paste0('HealthStat',x), nhanes(paste0('HSQ_',y)), envir=.GlobalEnv)
     assign(paste0('Exercise',x), nhanes(paste0('PAQ_',y)), envir=.GlobalEnv)
     assign(paste0('BMI',x), nhanes(paste0('BMX_',y)),envir=.GlobalEnv)
-    
+
+    # Merge all datasets by participant ID (SEQN)
+
     fulldata <- get(paste0('demo20',x)) %>%
     full_join(get(paste0('BMI',x)), by = "SEQN") %>%
     full_join(get(paste0('BloodPQ',x)), by = "SEQN") %>%
@@ -54,7 +67,14 @@ import<-function(x,y){
     assign(paste0('Afulldata',x), fulldata, envir=.GlobalEnv)
 }
 
-#FUNCTION: renames all my dataframes' variables
+# ===============================================================
+#### 4. FUNCTION: NHANESrename ####
+# Purpose: Change variable names across all NHANES datasets
+# Input:
+#   x = year suffix
+#   y = dataset to rename
+# Output:
+#   Saves cleaned and renamed dataset to the global environment as final20<x>
 
 NHANESrename<-function(x,y){
 #x is years after 2000
@@ -110,6 +130,8 @@ NHANESrename<-function(x,y){
                      Self_Med=PAQ665
                      )
   
+    
+  # Select only variables needed for analysis
   coolerdata<-select(cooldata, c(  ID, 
                                    Gender,
                                    Age,
@@ -166,22 +188,22 @@ NHANESrename<-function(x,y){
   
 }
 
-#bringing in the data we want 
+# Download datasets for years 2011, 2013, and 2015 using import function
 import(11, "G")
 import(13,"H")
 import(15, "I")
 
-#selecting and renaming the variables we want
+# Apply NHANESrename function to standardize datasets for 2011, 2013, 2015
 NHANESrename(11,Afulldata11)
 NHANESrename(13,Afulldata13)
 NHANESrename(15,Afulldata15)
 
 
-#COMBINE: the data frames
+# Combine datasets from multiple years into a single dataframe
 alldata <-bind_rows(final2011,final2013,final2015)
 
 
-#FILTER: We want non-pregnant adults aged 18-65 that are under 200% of FPL
+# Include only non-pregnant adults aged 18-65 and under 200% FPL
 alldata <- alldata %>%
   filter(Age>=18 & Age<=65) %>%
   filter(Pregnancy=="The participant was not pregnant at exam"|
@@ -190,7 +212,11 @@ alldata <- alldata %>%
   filter(Percent_FPL<2.00)
 
 
-#FOOD INSECURITY  
+# ===============================================================
+#### FOOD INSECURITY VARIABLES ####
+# Create a score for food insecurity (FSQcount) and a binary indicator (Has_FISQ)
+# FSQcount: counts affirmative responses to 10 food security questions
+# Has_FISQ: defines food insecurity; low sensitivity = 3+ affirmative responses
 
 alldata <- alldata %>%
 rowwise() %>%
@@ -214,14 +240,17 @@ rowwise() %>%
   ungroup()
 
 
-#CHRONIC ILLNESS
+# ===============================================================
+#### 9. CHRONIC ILLNESS VARIABLES ####
+# Hypertension (HBP), Hyperlipidemia (Cholesterol), Diabetes
+# Each condition includes self-reported and clinical measures
 
-#Hypertension 
-#   Self reported 
+#HYPERTENSION 
+#Self reported 
 alldata <- alldata %>%
   rename(SR_HBP=Doctor_Report_HBP)
 
-#   Clinical
+#Clinical
 alldata <- alldata %>%
   mutate(
     AvgSystolicBP = rowMeans(
@@ -245,11 +274,11 @@ alldata <- alldata %>%
 
   
 #HYPERLIPIDEMIA 
-#   Self reported 
+#Self reported 
 alldata <- alldata %>%
   rename(SR_Chol=Doctor_Report_BChol)
 
-#   Clinical
+#Clinical
 alldata <- alldata %>%
   mutate(Clinical_Chol= ifelse(TCholesterol_mg>=240|
                               TCholesterol_mmol>=6.22|
@@ -263,11 +292,11 @@ alldata <- alldata %>%
 
 
 #DIABETES
-#  Self reported 
+#Self reported 
 alldata <- alldata %>%
   rename(SR_Diabetes=Doctor_Report_Diabetes)
 
-#   Clinical
+#Clinical
 alldata <- alldata %>%
   mutate(Clinical_Diab= ifelse(Glucose_Level_mg>=126|
                                Glucose_Level_mmol>=6.99|
@@ -279,7 +308,7 @@ alldata <- alldata %>%
   )
 
 
-#Income subgroups, by FPL 
+# Categorize participants by income as % of federal poverty level
 alldata <- alldata %>%
   mutate(Income=cut(Percent_FPL, 
                     breaks = c(0, 0.5, 1, 1.3, 2),      
@@ -288,7 +317,7 @@ alldata <- alldata %>%
   
 
 
-#need to categorize health insurance 
+# Categorize participants based on insurance type: Private, Public, or None
 alldata <- alldata %>%
   mutate(
     Insurance_Type=case_when(
@@ -299,20 +328,20 @@ alldata <- alldata %>%
   )
 
 
-#change true and false to food security status 
+# Convert binary food insecurity to descriptive label
 alldata <- alldata %>%
   mutate(
     Has_FISQ=if_else(Has_FISQ, "Food Insecure", "Food Secure" )
   )
 
-#In the original table, BMI was split between men and women 
+# Separate BMI values by gender for analysis or table display
 alldata <- alldata %>%
   mutate(
     BMI_men   = ifelse(Gender == "Male", BMI, NA),
     BMI_women = ifelse(Gender == "Female", BMI, NA)
   )
 
-#categorizing exercise
+# Occupational physical activity: heavy, moderate, or light
 alldata <- alldata %>%
   mutate(
     Occupational_PA=case_when(
@@ -322,6 +351,7 @@ alldata <- alldata %>%
     )
   )
 
+# Leisurely physical activity: vigorous, moderate, or light
 alldata <- alldata %>%
   mutate(
     Leisurely_PA=case_when(
@@ -331,8 +361,8 @@ alldata <- alldata %>%
     )
   )
 
-#mutate Health Status and Education into levels so I am able to run fischer test
 
+# Convert original HealthStatus variable into 4 levels for analysis
 alldata <- alldata %>%
   mutate(HealthStatus=case_when(
     HealthStatus=="Excellent" ~ "Excellent",
@@ -342,6 +372,8 @@ alldata <- alldata %>%
     )
     )
 
+
+# Group education into 3 levels
 alldata <- alldata %>%
   mutate(Education=case_when(
     Education=="Less than 9th grade" | 
@@ -354,8 +386,10 @@ alldata <- alldata %>%
 
   
 
-#TABLE TIME!! ---------------------------------------------------------
-#______________________________________________________________________
+# ===============================================================
+# TABLE CREATION SETUP
+# Install and load packages for summary tables
+
 #Table1- Summary Stats 
 install.packages("gtsummary")
 library(gtsummary)
@@ -372,10 +406,11 @@ tbl1<-alldata %>%
            Leisurely_PA, HealthStatus,Has_FISQ)) %>%
   tbl_summary(by=Has_FISQ) %>%
   add_p()
-           
-tbl %>%
-  as_gt() %>%
-  gtsave("~/Desktop/my_table.pdf")
+
+#Note: uncomment this to save to desktop
+#tbl %>%
+  #as_gt() %>%
+  #gtsave("~/Desktop/my_table.pdf")
 
 
 
@@ -495,8 +530,8 @@ table2 %>%
 
 
 #Cleaning up_____________________________________________________________
-# Things I want to keep
 
+# Things I want to keep
 keep <- c("alldata", "final_table", "results", "results_long", "results_wide", "tbl1",
           "food_insecure", "calc_stats","import", "NHANESrename") 
 
