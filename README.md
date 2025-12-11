@@ -1,5 +1,5 @@
 # NHANES_Food-Insecurity-Project
-I used a similar design to Hilary K. Seligman, Barbara A. Laraia, and Margot B. Kushel’s study “Food Insecurity Is Associated with Chronic Disease among Low-Income NHANES Participants,” but conducted a comparison to determine whether there were significant differences between the original rates of food insecurity and chronic illness and more recent data. This replication uses NHANES datasets from 2011, 2013, and 2015 instead of the original 1999, 2001, and 2003 waves. 
+Using NHANES data from the 2011, 2013, and 2015 cycles, I conducted a multi-cycle cross-sectional analysis to estimate the prevalence of food insecurity and major chronic diseases, and to evaluate how these patterns have shifted compared with earlier cycles from 1999, 2001, and 2003.
 
 Cleaned and manipulated datasets, created tables and visualizations, and calculated risk ratios using R (tidyverse, dplyr, ggplot2, haven, readr, sandwich, etc). 
 
