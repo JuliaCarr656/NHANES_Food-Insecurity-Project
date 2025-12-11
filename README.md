@@ -15,4 +15,4 @@ Study how food insecurity is associated with chronic illnesses using NHANES surv
 ## How to use
 1. Open `nhanes.R` in RStudio.
 2. Run the scripts in order.
-3. Make sure you install the packages I included in the code. 
+3. Install included packages
